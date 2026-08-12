@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Athena Matrimony</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --crimson: #8B1A1A; --gold: #C8922A; --blush: #F5EDE3;
+    --ivory: #FDFAF6; --charcoal: #1E1E1E; --slate: #4A4A5A;
+    --muted: #8A8A9A; --border: #E2D9CE; --card-bg: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--ivory); color: var(--charcoal); min-height: 100vh; }
+
+  nav {
+    background: var(--crimson); padding: 0 2rem; display: flex; align-items: center;
+    justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 16px rgba(139,26,26,0.25);
+  }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold); letter-spacing: 0.5px; }
+  .nav-brand span { color: #fff; font-weight: 400; }
+
+  .hero { background: linear-gradient(135deg, var(--crimson) 0%, #5A0E0E 100%); padding: 3.5rem 2rem 3rem; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: '❧'; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 8rem; color: rgba(200,146,42,0.08); pointer-events: none; }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: #fff; margin-bottom: 0.5rem; }
+  .hero p { color: rgba(255,255,255,0.75); font-size: 1rem; margin-bottom: 2rem; }
+  .hero-stats { display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--gold); font-weight: 700; }
+  .stat-num .percent { font-size: 1.2rem; font-weight: 600; vertical-align: baseline; }
+  .stat-lbl { color: rgba(255,255,255,0.6); font-size: 0.8rem; }
+
+  .main-wrap { max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem; display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem; }
+
+  .sidebar { position: sticky; top: 80px; align-self: start; }
+  .filter-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .filter-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--crimson); margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .clear-btn { font-size: 0.75rem; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
+  .clear-btn:hover { color: var(--crimson); }
+  .filter-group { margin-bottom: 1.1rem; }
+  .filter-group label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--slate); text-transform: uppercase; margin-bottom: 0.4rem; }
+  .filter-group select, .filter-group input { width: 100%; padding: 0.5rem 0.7rem; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; background: var(--ivory); }
+  .range-row { display: flex; gap: 0.5rem; align-items: center; }
+
+  .search-bar-wrap { margin-bottom: 1.5rem; display: flex; gap: 0.75rem; }
+  .search-bar-wrap input { flex: 1; padding: 0.65rem 1.1rem; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.95rem; }
+  .search-bar-wrap button { background: var(--crimson); color: #fff; border: none; border-radius: 8px; padding: 0 1.25rem; font-weight: 600; cursor: pointer; }
+  .profiles-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .profiles-count { font-size: 0.85rem; color: var(--muted); }
+  .sort-select { padding: 0.4rem 0.7rem; border: 1px solid var(--border); border-radius: 7px; background: #fff; cursor: pointer; }
+  .profiles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.1rem; }
+
+  .profile-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+  .profile-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(139,26,26,0.12); }
+  .card-avatar { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; background: linear-gradient(135deg, var(--blush), #ead4c0); position: relative; }
+  .card-badge { position: absolute; top: 10px; right: 10px; background: var(--gold); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; text-transform: uppercase; }
+  .card-body { padding: 0.9rem; }
+  .card-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; margin-bottom: 0.2rem; }
+  .card-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.5rem; }
+  .tag { background: var(--blush); color: var(--crimson); font-size: 0.7rem; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--border); }
+  .card-loc { font-size: 0.75rem; color: var(--slate); }
+  .card-actions { display: flex; gap: 0.4rem; align-items: center; }
+  
+  .view-btn { background: var(--crimson); color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 0.75rem; cursor: pointer; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.55); backdrop-filter: blur(3px); align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 16px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,0.3); }
+  .modal-header { background: linear-gradient(135deg, var(--crimson), #5A0E0E); padding: 1.5rem; display: flex; align-items: center; gap: 1.25rem; border-radius: 16px 16px 0 0; }
+  .modal-avatar { width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; border: 3px solid rgba(200,146,42,0.6); }
+  .modal-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #fff; }
+  .modal-id { font-size: 0.8rem; color: rgba(255,255,255,0.6); }
+  .modal-close { margin-left: auto; background: rgba(255,255,255,0.15); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; }
+  .modal-body { padding: 1.5rem; }
+  .modal-section { margin-bottom: 1.5rem; }
+  .modal-section h4 { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--crimson); margin-bottom: 0.75rem; border-bottom: 1px solid var(--blush); padding-bottom: 0.4rem; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem 1rem; }
+  .info-lbl { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+  .info-val { font-size: 0.88rem; color: var(--charcoal); }
+  .bio-text { font-size: 0.9rem; line-height: 1.65; color: var(--slate); font-style: italic; background: var(--blush); border-radius: 8px; padding: 0.85rem 1rem; border-left: 3px solid var(--gold); }
+  
+  .email-modal-btn { background: #1a73e8; color: #fff; font-weight: 600; text-decoration: none; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
+  .email-modal-btn:hover { background: #1557b0; }
+  .empty-state { text-align: center; padding: 3rem; color: var(--muted); grid-column: 1 / -1; }
+
+  .site-footer { background: var(--crimson); color: #fff; text-align: center; padding: 2rem 1.5rem; margin-top: 3rem; border-top: 2px solid var(--gold); }
+  .footer-content p { margin-bottom: 0.5rem; font-size: 0.95rem; color: rgba(255, 255, 255, 0.9); }
+
+  @media (max-width: 768px) { .main-wrap { grid-template-columns: 1fr; } .sidebar { position: static; } .info-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav><div class="nav-brand">Athena<span>Matrimony</span></div></nav>
+
+<div id="profiles-view">
+  <div class="hero">
+    <h1>Find Your Perfect Life Partner</h1>
+    <p>Trusted by thousands of families across India and the world</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num" id="total-count">0</div><div class="stat-lbl">Profiles</div></div>
+      <div class="stat"><div class="stat-num">12</div><div class="stat-lbl">States</div></div>
+      <div class="stat"><div class="stat-num">8</div><div class="stat-lbl">Religions</div></div>
+      <div class="stat"><div class="stat-num">100<span class="percent">%</span></div><div class="stat-lbl">Verified</div></div>
+    </div>
+  </div>
+
+  <div class="main-wrap">
+    <aside class="sidebar">
+      <div class="filter-card">
+        <div class="filter-title">
+          Filter Profiles
+          <button class="clear-btn" onclick="clearFilters()">Clear All</button>
+        </div>
+        <div class="filter-group"><label>Gender</label><select id="f-gender" onchange="applyFilters()"><option value="">Any</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+        <div class="filter-group">
+          <label>Age Range</label>
+          <div class="range-row">
+            <input type="number" id="f-age-min" placeholder="Min" min="18" max="70" onchange="applyFilters()">
+            <span>–</span>
+            <input type="number" id="f-age-max" placeholder="Max" min="18" max="70" onchange="applyFilters()">
+          </div>
+        </div>
+        <div class="filter-group"><label>Religion</label><select id="f-religion" onchange="applyFilters()"><option value="">Any</option><option>Hindu</option><option>Muslim</option><option>Christian</option><option>Sikh</option><option>Buddhist</option><option>Jain</option></select></div>
+        <div class="filter-group"><label>Marital Status</label><select id="f-marital" onchange="applyFilters()"><option value="">Any</option><option>Never Married</option><option>Divorced</option><option>Widowed</option><option>Awaiting Divorce</option></select></div>
+        <div class="filter-group"><label>Education</label><select id="f-edu" onchange="applyFilters()"><option value="">Any</option><option>Doctorate</option><option>Masters</option><option>Bachelors</option><option>Diploma</option></select></div>
+        <div class="filter-group"><label>Employment</label><select id="f-employ" onchange="applyFilters()"><option value="">Any</option><option>Government</option><option>Private</option><option>Business</option><option>Not Employed</option></select></div>
+        <div class="filter-group"><label>Diet</label><select id="f-diet" onchange="applyFilters()"><option value="">Any</option><option>Vegetarian</option><option>Non-Vegetarian</option><option>Vegan</option><option>Eggetarian</option></select></div>
+        <div class="filter-group"><label>State</label><select id="f-state" onchange="applyFilters()"><option value="">Any</option></select></div>
+        <div class="filter-group"><label>Family Values</label><select id="f-family" onchange="applyFilters()"><option value="">Any</option><option>Orthodox</option><option>Traditional</option><option>Moderate</option><option>Liberal</option></select></div>
+      </div>
+    </aside>
+
+    <div>
+      <div class="search-bar-wrap">
+        <input type="text" id="search-input" placeholder="Search by name, city, occupation, caste..." oninput="applyFilters()">
+        <button onclick="applyFilters()">Search</button>
+      </div>
+      <div class="profiles-header">
+        <div class="profiles-count" id="result-count"></div>
+        <select class="sort-select" id="sort-select" onchange="applyFilters()">
+          <option value="name">Sort: Name A–Z</option>
+          <option value="age-asc">Age: Youngest First</option>
+          <option value="age-desc">Age: Oldest First</option>
+        </select>
+      </div>
+      <div class="profiles-grid" id="profiles-grid"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-content">
+    <p>Athena Matrimony</p>
+    <p>©2026</p>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-avatar" id="m-avatar"></div>
+      <div>
+        <div class="modal-name" id="m-name"></div>
+        <div class="modal-id" id="m-id"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+let profiles = [];
+
+async function loadProfiles() {
+  try {
+    const response = await fetch('profiles.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    profiles = await response.json();
+    if (!Array.isArray(profiles)) throw new Error('profiles.json must contain an array.');
+  } catch (err) { console.error('Error loading profiles.json:', err); profiles = []; }
+  initUI();
+}
+
+function calcAge(dob) {
+  const b = new Date(dob), now = new Date();
+  let age = now.getFullYear() - b.getFullYear();
+  const m = now.getMonth() - b.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
+  return age;
+}
+
+function fmtHeight(cm) {
+  const feet = Math.floor(cm / 30.48);
+  const inches = Math.round((cm / 30.48 - feet) * 12);
+  return `${cm} cm (${feet}'${inches}")`;
+}
+
+function applyFilters() {
+  const q     = document.getElementById('search-input').value.toLowerCase();
+  const fg    = document.getElementById('f-gender').value;
+  const frel  = document.getElementById('f-religion').value;
+  const fmar  = document.getElementById('f-marital').value;
+  const fedu  = document.getElementById('f-edu').value;
+  const femp  = document.getElementById('f-employ').value;
+  const fdiet = document.getElementById('f-diet').value;
+  const fst   = document.getElementById('f-state').value;
+  const ffam  = document.getElementById('f-family').value;
+  const famin = parseInt(document.getElementById('f-age-min').value) || 0;
+  const famax = parseInt(document.getElementById('f-age-max').value) || 200;
+  const sort  = document.getElementById('sort-select').value;
+
+  let filtered = profiles.filter(p => {
+    const age = calcAge(p.dob);
+    const searchStr = [p.name, p.city, p.occupation, p.caste, p.state, p.religion, p.motherTongue].join(' ').toLowerCase();
+    if (q && !searchStr.includes(q)) return false;
+    if (fg && p.gender !== fg) return false;
+    if (frel && p.religion !== frel) return false;
+    if (fmar && p.maritalStatus !== fmar) return false;
+    if (fedu && p.education !== fedu) return false;
+    if (femp && p.employment !== femp) return false;
+    if (fdiet && p.diet !== fdiet) return false;
+    if (fst && p.state !== fst) return false;
+    if (ffam && p.familyValues !== ffam) return false;
+    if (age < famin || age > famax) return false;
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    if (sort === 'name') return a.name.localeCompare(b.name);
+    if (sort === 'age-asc') return calcAge(a.dob) - calcAge(b.dob);
+    if (sort === 'age-desc') return calcAge(b.dob) - calcAge(a.dob);
+    return 0;
+  });
+
+  renderGrid(filtered);
+}
+
+function renderGrid(list) {
+  const grid = document.getElementById('profiles-grid');
+  document.getElementById('result-count').textContent = `${list.length} profile${list.length !== 1 ? 's' : ''} found`;
+  if (list.length === 0) {
+    grid.innerHTML = `<div class="empty-state">No profiles match your filters.</div>`;
+    return;
+  }
+  grid.innerHTML = list.map(p => {
+    return `
+    <div class="profile-card" onclick="openModal('${p.id}')">
+      <div class="card-avatar">${p.emoji || '👤'}<div class="card-badge">${p.residentialStatus === 'NRI' ? 'NRI' : 'Verified'}</div></div>
+      <div class="card-body">
+        <div class="card-name">${p.name}</div>
+        <div class="card-sub">${calcAge(p.dob)} yrs · ${fmtHeight(p.heightCm)} · ${p.maritalStatus}</div>
+        <div class="card-tags"><span class="tag">${p.religion}</span><span class="tag">${p.caste}</span><span class="tag">${p.education}</span></div>
+        <div class="card-footer">
+          <span class="card-loc">📍 ${p.city}, ${p.state}</span>
+          <div class="card-actions">
+            <button class="view-btn">View</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function populateStateFilter() {
+  const states = [...new Set(profiles.map(p => p.state))].sort();
+  const sel = document.getElementById('f-state');
+  sel.innerHTML = '<option value="">Any</option>' + states.map(s => `<option>${s}</option>`).join('');
+}
+
+function clearFilters() {
+  ['f-gender','f-religion','f-marital','f-edu','f-employ','f-diet','f-state','f-family'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-age-min').value = ''; document.getElementById('f-age-max').value = '';
+  document.getElementById('search-input').value = '';
+  applyFilters();
+}
+
+function openModal(id) {
+  const p = profiles.find(x => x.id === id);
+  if (!p) return;
+  const age = calcAge(p.dob);
+  const subject = encodeURIComponent(`Interest in BandhanSetu Profile (${p.id})`);
+  const bodyText = encodeURIComponent(`Hi ${p.name},\n\nI came across your profile on BandhanSetu and would love to connect with you.`);
+
+  document.getElementById('m-avatar').textContent = p.emoji || '👤';
+  document.getElementById('m-name').textContent = p.name;
+  document.getElementById('m-id').textContent = `Profile ID: ${p.id} · ${age} years old`;
+
+  document.getElementById('modal-body').innerHTML = `
+    <div class="modal-section" style="display:flex; justify-content:space-between; align-items:center; background:#f9f4ef; padding:1rem; border-radius:10px; margin-bottom:1.5rem; border:1px solid var(--border);">
+      <div>
+        <div style="font-size:0.8rem; color:var(--muted); font-weight:600; text-transform:uppercase;">Contact Directly</div>
+        <div style="font-size:0.95rem; font-weight:600; color:var(--charcoal);">${p.email}</div>
+      </div>
+      <a href="mailto:${p.email}?subject=${subject}&body=${bodyText}" class="email-modal-btn">
+        ✉️ Send Email
+      </a>
+    </div>
+
+    <div class="modal-section"><h4>👤 Basic Details</h4><div class="info-grid">
+      <div class="info-item"><div class="info-lbl">Gender</div><div class="info-val">${p.gender}</div></div>
+      <div class="info-item"><div class="info-lbl">Date of Birth</div><div class="info-val">${new Date(p.dob).toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'})}</div></div>
+      <div class="info-item"><div class="info-lbl">Age</div><div class="info-val">${age} years</div></div>
+      <div class="info-item"><div class="info-lbl">Marital Status</div><div class="info-val">${p.maritalStatus}</div></div>
+      <div class="info-item"><div class="info-lbl">Height</div><div class="info-val">${fmtHeight(p.heightCm)}</div></div>
+      <div class="info-item"><div class="info-lbl">Physical Status</div><div class="info-val">${p.physicalStatus}</div></div>
+    </div></div>
+    <div class="modal-section"><h4>🏛️ Cultural & Religious</h4><div class="info-grid">
+      <div class="info-item"><div class="info-lbl">Religion</div><div class="info-val">${p.religion}</div></div>
+      <div class="info-item"><div class="info-lbl">Mother Tongue</div><div class="info-val">${p.motherTongue}</div></div>
+      <div class="info-item"><div class="info-lbl">Caste</div><div class="info-val">${p.caste}</div></div>
+      <div class="info-item"><div class="info-lbl">Gothra</div><div class="info-val">${p.gothra}</div></div>
+      <div class="info-item"><div class="info-lbl">Manglik Status</div><div class="info-val">${p.manglik}</div></div>
+    </div></div>
+    <div class="modal-section"><h4>🎓 Education & Career</h4><div class="info-grid">
+      <div class="info-item"><div class="info-lbl">Education</div><div class="info-val">${p.education} (${p.educationDetail})</div></div>
+      <div class="info-item"><div class="info-lbl">Occupation</div><div class="info-val">${p.occupation} (${p.employment})</div></div>
+      <div class="info-item"><div class="info-lbl">Annual Income</div><div class="info-val">${p.annualIncome}</div></div>
+    </div></div>
+    <div class="modal-section"><h4>📍 Location</h4><div class="info-grid">
+      <div class="info-item"><div class="info-lbl">City</div><div class="info-val">${p.city}, ${p.state}</div></div>
+      <div class="info-item"><div class="info-lbl">Citizenship</div><div class="info-val">${p.citizenship} (${p.residentialStatus})</div></div>
+    </div></div>
+    <div class="modal-section"><h4>🍎 Lifestyle</h4><div class="info-grid">
+      <div class="info-item"><div class="info-lbl">Diet</div><div class="info-val">${p.diet}</div></div>
+      <div class="info-item"><div class="info-lbl">Smoking / Drinking</div><div class="info-val">${p.smoking} / ${p.drinking}</div></div>
+      <div class="info-item"><div class="info-lbl">Family Values</div><div class="info-val">${p.familyValues}</div></div>
+    </div></div>
+    <div class="modal-section"><h4>💬 About ${p.name.split(' ')[0]}</h4><div class="bio-text">"${p.bio}"</div></div>`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e) { if (e.target === document.getElementById('modal-overlay')) closeModalBtn(); }
+function closeModalBtn() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+function initUI() {
+  document.getElementById('total-count').textContent = profiles.length;
+  populateStateFilter();
+  applyFilters();
+}
+
+document.addEventListener('DOMContentLoaded', loadProfiles);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalBtn(); });
+
+window.addEventListener('storage', (e) => {
+  if (e.key === STORAGE_KEY) {
+    profiles = JSON.parse(e.newValue);
+    initUI();
+  }
+});
+</script>
+</body>
+</html>
